@@ -22,20 +22,22 @@ class MainActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
-        if((ActivityCompat.checkSelfPermission(this, Manifest.permission.RECEIVE_SMS) != PackageManager.PERMISSION_GRANTED) || (ActivityCompat.checkSelfPermission(this, Manifest.permission.RECEIVE_BOOT_COMPLETED) != PackageManager.PERMISSION_GRANTED)){
+        if((ActivityCompat.checkSelfPermission(this, Manifest.permission.RECEIVE_SMS) != PackageManager.PERMISSION_GRANTED) || (ActivityCompat.checkSelfPermission(this, Manifest.permission.RECEIVE_BOOT_COMPLETED) != PackageManager.PERMISSION_GRANTED) || ActivityCompat.checkSelfPermission(this, Manifest.permission.WAKE_LOCK) != PackageManager.PERMISSION_GRANTED || (ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_SMS) != PackageManager.PERMISSION_GRANTED)){
             ActivityCompat.requestPermissions(
                 this,
                 arrayOf(
                     Manifest.permission.RECEIVE_SMS,
-                    Manifest.permission.RECEIVE_BOOT_COMPLETED
+                    Manifest.permission.RECEIVE_BOOT_COMPLETED,
+                    Manifest.permission.WAKE_LOCK,
+                    Manifest.permission.READ_SMS
                 ),
                 123
             )
-        } else {
+        } /*else {
             br = SMSBroadCastReceiver()
             val filter = IntentFilter("android.provider.Telephony.SMS_RECEIVED")
             registerReceiver(br, filter)
-        }
+        }*/
     }
 
     override fun onDestroy() {
@@ -51,9 +53,9 @@ class MainActivity : AppCompatActivity() {
         if(requestCode == 123){
             if (grantResults.size == 2 && grantResults[0] == PackageManager.PERMISSION_GRANTED && grantResults[1] == PackageManager.PERMISSION_GRANTED
             ) {
-                br = SMSBroadCastReceiver()
+                /*br = SMSBroadCastReceiver()
                 val filter = IntentFilter("android.provider.Telephony.SMS_RECEIVED")
-                registerReceiver(br, filter)
+                registerReceiver(br, filter)*/
             }
         }
     }
