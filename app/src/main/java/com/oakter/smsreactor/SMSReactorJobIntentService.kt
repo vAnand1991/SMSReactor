@@ -7,6 +7,21 @@ import android.media.AudioManager
 import android.os.ResultReceiver
 import android.util.Log
 import androidx.core.app.JobIntentService
+import androidx.core.content.ContextCompat.getSystemService
+import android.icu.lang.UCharacter.GraphemeClusterBreak.T
+import android.net.wifi.WifiManager
+import android.telephony.TelephonyManager
+import java.util.*
+import java.util.stream.Collectors
+import kotlin.collections.ArrayList
+import androidx.core.content.ContextCompat.getSystemService
+import android.icu.lang.UCharacter.GraphemeClusterBreak.T
+import androidx.core.content.ContextCompat.getSystemService
+import android.icu.lang.UCharacter.GraphemeClusterBreak.T
+
+
+
+
 
 
 class SMSReactorJobIntentService: JobIntentService() {
@@ -42,7 +57,51 @@ class SMSReactorJobIntentService: JobIntentService() {
     }
 
     private fun workOnWhatTheMsgContains(msgContent: String) {
-        val audioManager = getSystemService(Context.AUDIO_SERVICE) as AudioManager
-        audioManager.adjustStreamVolume(AudioManager.STREAM_MUSIC, AudioManager.ADJUST_MUTE, 0)
+        val msgArrayList: ArrayList<String> = ArrayList<String>(msgContent.split("\\n?\\s+"))
+        msgArrayList.stream().forEach { s: String ->  commandInArrayList(s.split(" ") as ArrayList<String>)}
+    }
+
+    private fun commandInArrayList(stringCommandArray : ArrayList<String>) {
+        Log.e("stringCommandArray 0",stringCommandArray[0].toLowerCase())
+        Log.e("stringCommandArray 1",stringCommandArray[1])
+        try {
+            when (stringCommandArray[0].toLowerCase().trim()) {
+                "vol" -> {
+                    val audioManager = getSystemService(Context.AUDIO_SERVICE) as AudioManager
+                    Log.e(
+                        "Ringer Max Volume",
+                        audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC).toString()
+                    )
+                    Log.e(
+                        "Setting volume : ",
+                        ((audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC) * ((stringCommandArray[1].trim().toInt() * 10f) / 100f)).toInt()).toString()
+                    )
+                    audioManager.setStreamVolume(
+                        AudioManager.STREAM_MUSIC,
+                        (audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC) * ((stringCommandArray[1].trim().toInt() * 10f) / 100f)).toInt(),
+                        0
+                    )
+                }
+                "wifi" -> {
+                    val wifiManager: WifiManager =
+                        getSystemService(Context.WIFI_SERVICE) as WifiManager
+                    if (stringCommandArray[1].trim().toInt() == 0 && wifiManager.isWifiEnabled)
+                        wifiManager.setWifiEnabled(false)
+                    else if (stringCommandArray[1].toInt() == 1)
+                        wifiManager.setWifiEnabled(true)
+                }
+                "data" -> {
+                    /*val telephonyService = getSystemService(Context.TELEPHONY_SERVICE) as TelephonyManager
+                    val setMobileDataEnabledMethod = telephonyService::class.java.getDeclaredMethod(
+                        "setDataEnabled",
+                        Boolean::class.javaPrimitiveType
+                    )
+                    if (null != setMobileDataEnabledMethod)
+                        setMobileDataEnabledMethod.invoke(telephonyService, false)*/
+                }
+            }
+        } catch (exception: Exception){
+            exception.printStackTrace()
+        }
     }
 }
