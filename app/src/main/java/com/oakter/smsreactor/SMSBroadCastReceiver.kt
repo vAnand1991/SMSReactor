@@ -19,5 +19,8 @@ class SMSBroadCastReceiver: BroadcastReceiver() {
 //            .stream().filter { smsModelClass: SMSModelClass -> smsModelClass._address.equals("+917992267967", true) }.collect(Collectors.toList()) as ArrayList<SMSModelClass>
 
         Log.e("Count",listOfSMSFromInterestedNumber.size.toString())
+
+        val smsReactorIntent = Intent().apply { putExtra("latestSMSModel", listOfSMSFromInterestedNumber.get(0)) }
+        SMSReactorJobIntentService().enqueueWork(context!!, smsReactorIntent)
     }
 }
