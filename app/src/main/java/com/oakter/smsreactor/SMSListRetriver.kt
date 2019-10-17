@@ -20,7 +20,7 @@ class SMSListRetriver {
                 var objSms = SMSModelClass()
                 val message = Uri.parse("content://sms/")
                 contentResolver = context.contentResolver
-                val c = contentResolver.query(message, null, "address = '+917992267967'", null, null)
+                val c = contentResolver.query(message, null, null, null, null)
                 val totalSMS = c!!.getCount()
 
                 if (c.moveToFirst()) {

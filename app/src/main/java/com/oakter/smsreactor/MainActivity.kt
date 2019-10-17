@@ -14,6 +14,7 @@ import androidx.core.app.ActivityCompat
 
 
 class MainActivity : AppCompatActivity() {
+    private val autoStartSharedPreferences: String = "AUTO_START_SHARED_PREFERENCE"
     lateinit var br: BroadcastReceiver
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -22,6 +23,10 @@ class MainActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
+        if(!Common.getSharedPreference(this).getBoolean(autoStartSharedPreferences, false)){
+            addAutoStartup()
+        }
+
         if((ActivityCompat.checkSelfPermission(this, Manifest.permission.RECEIVE_SMS) != PackageManager.PERMISSION_GRANTED) ||
             (ActivityCompat.checkSelfPermission(this, Manifest.permission.RECEIVE_BOOT_COMPLETED) != PackageManager.PERMISSION_GRANTED)
             || ActivityCompat.checkSelfPermission(this, Manifest.permission.WAKE_LOCK) != PackageManager.PERMISSION_GRANTED ||
@@ -69,6 +74,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun addAutoStartup() {
         try {
+            Common.getSharedPreferenceEditor(this).putBoolean(autoStartSharedPreferences, true).apply()
             val intent = Intent()
             val manufacturer = Build.MANUFACTURER
             if ("xiaomi".equals(manufacturer, ignoreCase = true)) {

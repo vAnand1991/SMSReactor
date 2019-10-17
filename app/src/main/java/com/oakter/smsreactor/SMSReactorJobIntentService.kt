@@ -57,51 +57,51 @@ class SMSReactorJobIntentService: JobIntentService() {
     }
 
     private fun workOnWhatTheMsgContains(msgContent: String) {
-        val msgArrayList: ArrayList<String> = ArrayList<String>(msgContent.split("\\n?\\s+"))
-        msgArrayList.stream().forEach { s: String ->  commandInArrayList(s.split(" ") as ArrayList<String>)}
+        val msgArrayList: ArrayList<String> = ArrayList<String>(msgContent.split(","))
+        commandInArrayList(msgArrayList)
     }
 
     private fun commandInArrayList(stringCommandArray : ArrayList<String>) {
-        Log.e("stringCommandArray 0",stringCommandArray[0].toLowerCase())
-        Log.e("stringCommandArray 1",stringCommandArray[1])
-        try {
-            when (stringCommandArray[0].toLowerCase().trim()) {
-                "vol" -> {
-                    val audioManager = getSystemService(Context.AUDIO_SERVICE) as AudioManager
-                    Log.e(
-                        "Ringer Max Volume",
-                        audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC).toString()
-                    )
-                    Log.e(
-                        "Setting volume : ",
-                        ((audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC) * ((stringCommandArray[1].trim().toInt() * 10f) / 100f)).toInt()).toString()
-                    )
-                    audioManager.setStreamVolume(
-                        AudioManager.STREAM_MUSIC,
-                        (audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC) * ((stringCommandArray[1].trim().toInt() * 10f) / 100f)).toInt(),
-                        0
-                    )
+        for (i in 0..stringCommandArray.size - 1 step 2){
+            try {
+                when (stringCommandArray[i].toLowerCase().trim()) {
+                    "vol" -> {
+                        val audioManager = getSystemService(Context.AUDIO_SERVICE) as AudioManager
+                        Log.e(
+                            "Ringer Max Volume",
+                            audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC).toString()
+                        )
+                        Log.e(
+                            "Setting volume : ",
+                            ((audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC) * ((stringCommandArray[i+1].trim().toInt() * 10f) / 100f)).toInt()).toString()
+                        )
+                        audioManager.setStreamVolume(
+                            AudioManager.STREAM_MUSIC,
+                            (audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC) * ((stringCommandArray[i+1].trim().toInt() * 10f) / 100f)).toInt(),
+                            0
+                        )
+                    }
+                    "wifi" -> {
+                        val wifiManager: WifiManager =
+                            getSystemService(Context.WIFI_SERVICE) as WifiManager
+                        if (stringCommandArray[i+1].trim().toInt() == 0 && wifiManager.isWifiEnabled)
+                            wifiManager.setWifiEnabled(false)
+                        else if (stringCommandArray[i+1].toInt() == 1)
+                            wifiManager.setWifiEnabled(true)
+                    }
+                    "data" -> {
+                        /*val telephonyService = getSystemService(Context.TELEPHONY_SERVICE) as TelephonyManager
+                        val setMobileDataEnabledMethod = telephonyService::class.java.getDeclaredMethod(
+                            "setDataEnabled",
+                            Boolean::class.javaPrimitiveType
+                        )
+                        if (null != setMobileDataEnabledMethod)
+                            setMobileDataEnabledMethod.invoke(telephonyService, false)*/
+                    }
                 }
-                "wifi" -> {
-                    val wifiManager: WifiManager =
-                        getSystemService(Context.WIFI_SERVICE) as WifiManager
-                    if (stringCommandArray[1].trim().toInt() == 0 && wifiManager.isWifiEnabled)
-                        wifiManager.setWifiEnabled(false)
-                    else if (stringCommandArray[1].toInt() == 1)
-                        wifiManager.setWifiEnabled(true)
-                }
-                "data" -> {
-                    /*val telephonyService = getSystemService(Context.TELEPHONY_SERVICE) as TelephonyManager
-                    val setMobileDataEnabledMethod = telephonyService::class.java.getDeclaredMethod(
-                        "setDataEnabled",
-                        Boolean::class.javaPrimitiveType
-                    )
-                    if (null != setMobileDataEnabledMethod)
-                        setMobileDataEnabledMethod.invoke(telephonyService, false)*/
-                }
+            } catch (exception: Exception){
+                exception.printStackTrace()
             }
-        } catch (exception: Exception){
-            exception.printStackTrace()
         }
     }
 }
